@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SPA application</title>
+
+    <link rel='stylesheet prefetch'
+          href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
+    <link rel='stylesheet prefetch'
+          href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css'>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+
+<body>
+<div class="container">
+    <header class="page-header">
+        <div class="branding">
+            <a href="#/"><h1>SPA</h1></a>
+        </div>
+    </header>
+    <a href="/api/doc" style="color: lightcoral">API documentation</a>
+    <main id="app"></main>
+</div>
+
+<template id="product-list">
+    <section>
+        <div class="actions">
+            <router-link class="btn btn-default" :to="{name: 'product-add'}">
+                <span class="glyphicon glyphicon-plus"></span>
+                Add product
+            </router-link>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>login</th>
+                <th>password</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="product in products">
+                <td>
+                    <router-link :to="{name: 'product-edit', params: {product_id: product.id}}">
+                        {% verbatim %}{{ product.name }}{% endverbatim %}
+                    </router-link>
+                </td>
+                <td>
+                    {% verbatim %}{{ product.login }}{% endverbatim %}
+                </td>
+                <td>
+                    {% verbatim %}{{ product.password }}{% endverbatim %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</template>
+
+<template id="add-product">
+    <section>
+        <h2>Add new product</h2>
+
+        <form v-on:submit="createProduct">
+
+            <div class="form-group">
+                <label for="add-name">Name</label>
+                <input class="form-control" id="add-name" v-model="product.name" required autofocus />
+            </div>
+            <canvas-component></canvas-component>
+            <div class="form-group">
+                <label for="add-login">login</label>
+                <input class="form-control" id="add-login" rows="10" v-model="product.login" required />
+            </div>
+            <div class="form-group">
+                <label for="add-password">password</label>
+                <input class="form-control" id="add-password" v-model="product.password" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+            <router-link :to="{name: 'home'}" class="btn btn-default">Cancel</router-link>
+        </form>
+    </section>
+</template>
+
+<template id="product-edit">
+    <section>
+        <h2>Edit product</h2>
+        <error-message-component v-bind:error="error"></error-message-component>
+        <div v-if="isCheck">
+            <form v-if="product" v-on:submit="updateProduct">
+                <div class="form-group">
+                    <label for="edit-name">Name</label>
+                    <input class="form-control" id="edit-name" v-model="product.name" required/>
+                </div>
+                <div class="form-group">
+                    <canvas-component v-bind:old-canvas="product.content"></canvas-component>
+                </div>
+                <div class="form-group">
+                    <label for="edit-login">new login</label>
+                    <input class="form-control" id="edit-login" v-model="product.new_login" >
+                </div>
+                <div class="form-group">
+                    <label for="edit-password">new password</label>
+                    <input class="form-control" id="edit-password" v-model="product.new_password" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <router-link :to="{name: 'home'}" class="btn btn-default">Cancel</router-link>
+            </form>
+            <p v-else>No items found.</p>
+        </div>
+        <div v-else>
+            <form v-on:submit="checkData">
+
+                <div class="form-group">
+                    <label for="edit-login">login</label>
+                    <input class="form-control" id="edit-login" v-model="check_data.login" autofocus required />
+                </div>
+                <div class="form-group">
+                    <label for="edit-password">password</label>
+                    <input class="form-control" id="edit-password" v-model="check_data.password" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Check</button>
+                <router-link :to="{name: 'home'}" class="btn btn-default">Cancel</router-link>
+            </form>
+        </div>
+    </section>
+</template>
+
+{#<script src='https://unpkg.com/vue'></script>#}
+<script src='https://cdn.jsdelivr.net/vue/2.2.6/vue.min.js'></script>
+<script src='https://cdn.jsdelivr.net/vue.router/2.4.0/vue-router.min.js'></script>
+<script src='https://cdn.jsdelivr.net/vue.resource/1.3.1/vue-resource.min.js'></script>
+<script src="/src/js/app.js"></script>
+
+</body>
+</html>

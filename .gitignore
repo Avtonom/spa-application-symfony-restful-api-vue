@@ -4,6 +4,11 @@
 /var/*
 !/var/cache
 /var/cache/*
+!/var/data
+!/var/data/*
+!/var/data/images
+/var/data/images/*
+!/var/data/images/.gitkeep
 !var/cache/.gitkeep
 !/var/logs
 /var/logs/*

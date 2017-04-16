@@ -1,0 +1,19 @@
+AppBundle\Entity\Image:
+    exclusion_policy: all
+    properties:
+      id:
+        expose: true
+        groups: [image_list, image_show, image_create, image_update]
+      name:
+        expose: true
+        groups: [image_list, image_show, image_create, image_update]
+      login:
+        expose: true
+        groups: [image_list, image_show, image_secure]
+      password:
+        expose: true
+        groups: [image_list, image_show, image_secure]
+      fileContent:
+        expose: true
+        groups: [image_show]
+        serialized_name: content
