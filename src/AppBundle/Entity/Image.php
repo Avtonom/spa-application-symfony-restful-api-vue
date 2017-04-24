@@ -67,6 +67,13 @@ class Image
     private $fileName;
 
     /**
+     * @ORM\Column(name="updated_at", type="datetime")
+     *
+     * @var \DateTime
+     */
+    private $updatedAt;
+
+    /**
      * Get id
      *
      * @return int
@@ -162,6 +169,9 @@ class Image
     public function setFile($file)
     {
         $this->file = $file;
+        if ($file) {
+            $this->setUpdatedAt(new \DateTime());
+        }
     }
 
     /**
@@ -194,5 +204,21 @@ class Image
     public function setFileContent($fileContent)
     {
         $this->fileContent = $fileContent;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTime $updatedAt
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

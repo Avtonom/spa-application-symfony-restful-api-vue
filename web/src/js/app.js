@@ -1,5 +1,6 @@
 var images = [];
 var imagesLoad = false;
+var sketcher;
 
 function findImage(imageId) {
     return (images && images.length && images.hasOwnProperty(findImageKey(imageId))) ? images[findImageKey(imageId)] : null;
@@ -97,10 +98,7 @@ var ImageEdit = Vue.extend({
                 login: (image.new_login && image.new_login.length) ? image.new_login : image.login,
                 password: (image.new_password && image.new_password.length) ? image.new_password : image.password
             };
-
-            var canvas = document.getElementById("canvas-body");
-            var canvasData = canvas.toDataURL("image/png");
-
+            var canvasData = sketcher.toImage();
             var formData = new FormData();
             formData.append('name', image.name);
             formData.append('login', (image.login && image.login.length) ? image.login : '');
@@ -133,9 +131,7 @@ var ImageAdd = Vue.extend({
         createImage: function (e) {
             e.preventDefault();
             var image = this.image;
-            var canvas = document.getElementById("canvas-body");
-            var canvasData = canvas.toDataURL("image/png");
-
+            var canvasData = sketcher.toImage();
             var formData = new FormData();
             formData.append('name', image.name);
             formData.append('login', (image.login && image.login.length) ? image.login : '');
@@ -210,52 +206,7 @@ Vue.component('canvas-component', {
             };
             imageObj.src = this.oldCanvas;
         }
-
-        tool = new tool_pencil();
-        canvas.addEventListener('mousedown', ev_canvas, false);
-        canvas.addEventListener('mousemove', ev_canvas, false);
-        canvas.addEventListener('mouseup', ev_canvas, false);
-
-        function tool_pencil() {
-            var tool = this;
-            this.started = false;
-
-
-            this.mousedown = function (ev) {
-                context.beginPath();
-                context.moveTo(ev._x, ev._y);
-                tool.started = true;
-            };
-
-            this.mousemove = function (ev) {
-                if (tool.started) {
-                    context.lineTo(ev._x, ev._y);
-                    context.stroke();
-                }
-            };
-
-            this.mouseup = function (ev) {
-                if (tool.started) {
-                    tool.mousemove(ev);
-                    tool.started = false;
-                }
-            };
-        }
-
-        function ev_canvas(ev) {
-            if (ev.layerX || ev.layerX == 0) { // Firefox
-                ev._x = ev.layerX;
-                ev._y = ev.layerY;
-            } else if (ev.offsetX || ev.offsetX == 0) { // Opera
-                ev._x = ev.offsetX;
-                ev._y = ev.offsetY;
-            }
-
-            var func = tool[ev.type];
-            if (func) {
-                func(ev);
-            }
-        }
+        sketcher = atrament(canvas);
     }
 });
 
