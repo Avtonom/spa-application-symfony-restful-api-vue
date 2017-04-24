@@ -77,6 +77,7 @@ class DefaultController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
+            $image->setPlainPassword($image->getPassword());
             $em = $this->getDoctrine()->getManager();
             $em->persist($image);
             $em->flush();
@@ -111,23 +112,24 @@ class DefaultController extends FOSRestController
      */
     public function postUpdateImageAction(Request $request, Image $image)
     {
-//        $this->get('api.put.utils')->parse_input();
+        $login = $image->getLogin();
+        $password = $image->getPassword();
         $form = $this->createForm('AppBundle\Form\ImageType', $image, [
 //            'method' => 'POST',
             'method' => $request->getMethod(),
             'validation_groups' => array('image_update'),
         ]);
         $form->handleRequest($request);
-
         if ($form->isValid()) {
-            if($request->request->get('login') != $image->getLogin() || $request->request->get('password') != $image->getPassword()){
+            if($request->request->get('login') != $login || !$this->get('app.encoder_manager')->isValid($password, $request->request->get('password'))){
                 throw new AccessDeniedHttpException();
             }
+            $image->setPlainPassword($image->getPassword());
             if($request->request->has('new_login') && strlen($request->request->get('new_login'))){
                 $image->setLogin($request->request->get('new_login'));
             }
             if($request->request->has('new_password') && strlen($request->request->get('new_password'))){
-                $image->setPassword($request->request->get('new_password'));
+                $image->setPlainPassword($request->request->get('new_password'));
             }
             $this->getDoctrine()->getManager()->flush();
 
@@ -161,6 +163,8 @@ class DefaultController extends FOSRestController
      */
     public function getImageAction(Request $request, Image $image)
     {
+        $login = $image->getLogin();
+        $password = $image->getPassword();
         $form = $this->createForm('AppBundle\Form\ImageType', null, [
             'method' => $request->getMethod(),
             'validation_groups' => array('image_show'),
@@ -168,7 +172,7 @@ class DefaultController extends FOSRestController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            if($request->query->get('login') != $image->getLogin() || $request->query->get('password') != $image->getPassword()){
+            if($request->query->get('login') != $login || !$this->get('app.encoder_manager')->isValid($password, $request->query->get('password'))){
                 throw new AccessDeniedHttpException();
             }
             $downloadHandler = $this->get('vich_uploader.download_handler');
@@ -182,5 +186,4 @@ class DefaultController extends FOSRestController
         }
         return View::create($form, Response::HTTP_BAD_REQUEST);
     }
-
 }

@@ -102,7 +102,7 @@ var ImageEdit = Vue.extend({
             var formData = new FormData();
             formData.append('name', image.name);
             formData.append('login', (image.login && image.login.length) ? image.login : '');
-            formData.append('password', (image.password && image.password.length) ? image.password : '');
+            formData.append('password', (this.check_data.password && this.check_data.password) ? this.check_data.password : '');
             formData.append('new_login', (image.new_login && image.new_login.length) ? image.new_login : '');
             formData.append('new_password', (image.new_password && image.new_password.length) ? image.new_password : '');
             formData.append('file', dataURItoBlob(canvasData));

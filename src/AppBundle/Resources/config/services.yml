@@ -1,4 +1,13 @@
 services:
-#    app.example:
-#        class: AppBundle\Example
-#        arguments: ["@service_id", "plain_value", "%parameter%"]
+
+    app.encoder_manager:
+        class: AppBundle\Model\EncoderManager
+        arguments: ["%secret%"]
+        autowire: true
+
+    app.doctrine.hash_password_listener:
+        class: AppBundle\Listener\HashPasswordListener
+        arguments: ["@app.encoder_manager"]
+        autowire: true
+        tags:
+            - { name: doctrine.event_subscriber }
