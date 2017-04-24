@@ -1,14 +1,14 @@
-var products = [];
-var productsLoad = false;
+var images = [];
+var imagesLoad = false;
 
-function findProduct(productId) {
-    return (products && products.length && products.hasOwnProperty(findProductKey(productId))) ? products[findProductKey(productId)] : null;
+function findImage(imageId) {
+    return (images && images.length && images.hasOwnProperty(findImageKey(imageId))) ? images[findImageKey(imageId)] : null;
 }
 
-function findProductKey(productId) {
-    if (products && products.length) {
-        for (var key = 0; key < products.length; key++) {
-            if (products[key].id == productId) {
+function findImageKey(imageId) {
+    if (images && images.length) {
+        for (var key = 0; key < images.length; key++) {
+            if (images[key].id == imageId) {
                 return key;
             }
         }
@@ -31,10 +31,10 @@ function dataURItoBlob(dataURI) {
     return new Blob([ia], {type:mimeString});
 }
 
-var List = Vue.extend({
-    template: '#product-list',
+var ImageList = Vue.extend({
+    template: '#image-list',
     data: function () {
-        return {products: products, searchKey: ''};
+        return {images: images, searchKey: ''};
     },
     created: function () {
         this.fetchActivities();
@@ -43,11 +43,11 @@ var List = Vue.extend({
     methods: {
         fetchActivities: function () {
             var self = this;
-            if (!productsLoad) {
+            if (!imagesLoad) {
                 this.$http.get('/v1/list/image.json').then(function (response) {
-                    products = response.body;
-                    self.products = response.body;
-                    productsLoad = true;
+                    images = response.body;
+                    self.images = response.body;
+                    imagesLoad = true;
 
                 }, function (response) {
                     console.error(response);
@@ -57,35 +57,28 @@ var List = Vue.extend({
     }
 });
 
-var Product = Vue.extend({
-    template: '#product',
-    data: function () {
-        return {product: findProduct(this.$route.params.product_id)};
-    }
-});
-
-var ProductEdit = Vue.extend({
-    template: '#product-edit',
+var ImageEdit = Vue.extend({
+    template: '#image-edit',
     data: function () {
         return {
             check_data: {login: '', password: '', new_login: '', new_password: ''},
             isCheck: false,
             error: null,
-            product: null
+            image: null
         };
     },
     methods: {
         checkData: function (e) {
             e.preventDefault();
-            var product_id = this.$route.params.product_id;
+            var image_id = this.$route.params.image_id;
             var self = this;
-            this.$http.get('/v1/images/' + product_id + '.json', {
+            this.$http.get('/v1/images/' + image_id + '.json', {
                 params: {
                     login: this.check_data.login,
                     password: this.check_data.password
                 }
             }).then(function (response) {
-                self.product = response.body;
+                self.image = response.body;
                 self.isCheck = true;
                 self.error = null;
 
@@ -94,32 +87,32 @@ var ProductEdit = Vue.extend({
                 self.error = response.status;
             });
         },
-        updateProduct: function (e) {
+        updateImage: function (e) {
             e.preventDefault();
-            var product = this.product;
-            var key = findProductKey(product.id);
-            products[key] = {
-                id: product.id,
-                name: product.name,
-                login: (product.new_login && product.new_login.length) ? product.new_login : product.login,
-                password: (product.new_password && product.new_password.length) ? product.new_password : product.password
+            var image = this.image;
+            var key = findImageKey(image.id);
+            images[key] = {
+                id: image.id,
+                name: image.name,
+                login: (image.new_login && image.new_login.length) ? image.new_login : image.login,
+                password: (image.new_password && image.new_password.length) ? image.new_password : image.password
             };
 
             var canvas = document.getElementById("canvas-body");
             var canvasData = canvas.toDataURL("image/png");
 
             var formData = new FormData();
-            formData.append('name', product.name);
-            formData.append('login', (product.login && product.login.length) ? product.login : '');
-            formData.append('password', (product.password && product.password.length) ? product.password : '');
-            formData.append('new_login', (product.new_login && product.new_login.length) ? product.new_login : '');
-            formData.append('new_password', (product.new_password && product.new_password.length) ? product.new_password : '');
+            formData.append('name', image.name);
+            formData.append('login', (image.login && image.login.length) ? image.login : '');
+            formData.append('password', (image.password && image.password.length) ? image.password : '');
+            formData.append('new_login', (image.new_login && image.new_login.length) ? image.new_login : '');
+            formData.append('new_password', (image.new_password && image.new_password.length) ? image.new_password : '');
             formData.append('file', dataURItoBlob(canvasData));
 
-            this.$http.post('/v1/updates/' + product.id + '/images.json', formData).then(function (response) {
-                var updateProduct = response.body;
-                var key = findProductKey(updateProduct.id);
-                products[key]['name'] = updateProduct.name;
+            this.$http.post('/v1/updates/' + image.id + '/images.json', formData).then(function (response) {
+                var updateImage = response.body;
+                var key = findImageKey(updateImage.id);
+                images[key]['name'] = updateImage.name;
 
                 router.push('/');
             }, function (response) {
@@ -129,30 +122,30 @@ var ProductEdit = Vue.extend({
     }
 });
 
-var AddProduct = Vue.extend({
-    template: '#add-product',
+var ImageAdd = Vue.extend({
+    template: '#image-add',
     data: function () {
         return {
-            product: {name: '', login: '', password: ''}
+            image: {name: '', login: '', password: ''}
         }
     },
     methods: {
-        createProduct: function (e) {
+        createImage: function (e) {
             e.preventDefault();
-            var product = this.product;
+            var image = this.image;
             var canvas = document.getElementById("canvas-body");
             var canvasData = canvas.toDataURL("image/png");
 
             var formData = new FormData();
-            formData.append('name', product.name);
-            formData.append('login', (product.login && product.login.length) ? product.login : '');
-            formData.append('password', (product.password && product.password.length) ? product.password : '');
+            formData.append('name', image.name);
+            formData.append('login', (image.login && image.login.length) ? image.login : '');
+            formData.append('password', (image.password && image.password.length) ? image.password : '');
             formData.append('file', dataURItoBlob(canvasData));
 
             this.$http.post('/v1/images.json', formData).then(function (response) {
-                var newProduct = response.body;
+                var newImage = response.body;
 
-                products.push(newProduct);
+                images.push(newImage);
                 router.push('/');
             }, function (response) {
                 console.error(response)
@@ -268,9 +261,9 @@ Vue.component('canvas-component', {
 
 var router = new VueRouter({
     routes: [
-        {path: '/', component: List, name: 'home'},
-        {path: '/product/add', component: AddProduct, name: 'product-add'},
-        {path: '/product/:product_id/edit', component: ProductEdit, name: 'product-edit'}
+        {path: '/', component: ImageList, name: 'home'},
+        {path: '/image/add', component: ImageAdd, name: 'image-add'},
+        {path: '/image/:image_id/edit', component: ImageEdit, name: 'image-edit'}
     ]
 });
 
